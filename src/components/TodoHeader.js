@@ -1,5 +1,5 @@
-
-import TodoHeader extends react.Component {
+import React from 'react'
+class TodoHeader extends React.Component {
   //绑定键盘回车事件，添加新任务
   handleKeyUp(e) {
     if(e.keyCode == 13) {
@@ -10,6 +10,7 @@ import TodoHeader extends react.Component {
         isDone: false
       };
       e.target.value = '';
+      console.log(newTodoItem)
       this.props.addTodo(newTodoItem);
     } 
   }

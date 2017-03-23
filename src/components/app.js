@@ -5,9 +5,36 @@ alert('success');
 
 import React from 'react'
 import ReactDOM from 'react-dom'
-import TodoHeader form './TodoHeader' //引入TodoHeader组件
+import TodoHeader from './TodoHeader' //引入TodoHeader组件
 import TodoMain from './TodoMain'     //引入TodoMain组件
 
+class App extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      todos: []
+    };
+  }
+
+  addTodo(item) {
+    this.state.todos.push(item);
+    this.setState({todos: this.state.todos});
+  }
+
+  render() {
+    return (
+      <div className="todo-wrapper">
+        <TodoHeader addTodo={this.addTodo.bind(this)} />
+        <TodoMain todos={this.state.todos} />
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(<App />, document.getElementById('app'));
+
+
+/*
 class App extends React.Component {
   constructor() {
     super() //在装载组建(mounting)之前调用React组建的构造函数，
@@ -46,4 +73,4 @@ class App extends React.Component {
 }
 
 ReactDOM.render(<App />, document.getElementById('app'));
-
+*/
