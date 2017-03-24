@@ -1,13 +1,14 @@
 /*
  * Created by yuxinhua on 20/03/2017
  */
-alert('success');
+//alert('success');
 
 import React from 'react'
 import ReactDOM from 'react-dom'
 import TodoHeader from './TodoHeader' //引入TodoHeader组件
 import TodoMain from './TodoMain'     //引入TodoMain组件
-import Login form './login'
+import TodoFooter from './TodoFooter'
+import Login from './login'
 import { Radio } from 'antd'
 import AV from 'leancloud-storage'
 
@@ -23,7 +24,7 @@ class App extends React.Component {
       todos: [],
       todoId: null,
       isAllChecked: false,
-      currentUser: bull,
+      currentUser: null,
       value: 1
     };
   }
@@ -47,7 +48,7 @@ class App extends React.Component {
       this.state.todos[index].isDone = isDone;
       this.allChecked();
     }
-  },
+  }
 
   //判断是否所有任务的状态都完成，同步地步的全选框
   allChecked() {
@@ -60,7 +61,7 @@ class App extends React.Component {
       todos: this.state.todos,
       isAllChecked: isAllChecked
     });
-  },
+  }
 
   //清除已经完成的事件
   clearDone() {
@@ -68,13 +69,13 @@ class App extends React.Component {
     this.setState({
       todos: todos
     });
-  },
+  }
 
   //删除某个todoItem
   deleteTodo(index) {
     this.state.todos.splice(index, 1);
     this.setState({todos: this.state.todos});
-  },
+  }
 
   //修改登录或者注册
   onChange(e) {
@@ -136,14 +137,64 @@ class App extends React.Component {
     let acl = new AV.ACL();
     acl.setReadAccess(AV.User.current(), true);
     acl.setWriteAccess(AV.User.current(), true);
+    
+    acTodos.set('content', dateString);
+    acTodos.save().then(todo => {
+      this.state.todoId = todo.id;
+      this.setState({todoId: this.state.todoId});
+      console.log('保存成功');
+    }, err => {
+      //异常处理
+      console.error('保存失败');
+    });
+  }
+  
+  //更新todo到服务器
+  updateTodos() {
+    let dataString = JSON.stringify(this.state.todos);
+    let avTodos = AV.Object.createWithoutData('AllTodos', this.state.todoId);
+    avTodos.set('content', dateString);
+    acTodos.save().then(() => {
+      console.log('更新成功');
+    })
+  }
 
+  //判断应该更新还是存储list到leanCloud
+  saveOrUpdateTodos() {
+    if(this.state.todoId) {
+      this.updateTodos();
+    } else {
+      this.saveTodos();
+    }
+  }
+
+  componentWillMount() {
+    this.state.currentUser = this.getCurrentUser();
+    this.fetchTodos();
+    this.setState({currentUser: this.state.currentUser});
+  }
+
+  fetchTodos() {
+    if(this.state.currentUser) {
+      let query = new AV.Query('AllTodos');
+      query.find()
+        .then(todoList => {
+          let avAlltodos = todoList[0]; //因为理论上AllTodos只有一个，所以取结果第一项
+          let id = avAlltodos.id;
+          this.state.todos = JSON.parse(avAlltodos.attributes.content);
+          this.state.todoId = id;
+          this.setState({todos: this.state.todos, todoId: this.state.todoId});
+        }, err => {
+          console.error(err);
+        })
+    }
   }
 
   render() {
     if(!this.state.currentUser) {
       const RadioGroup = Radio.Group;
       return (
-        <div className="from-wrapper">  
+        <div className="form-wrapper">  
           <h1 className="todo-title">React-Todos</h1>
           <RadioGroup className="radio-wrapper" onChange={this.onChange.bind(this)} value={this.state.value}>
             <Radio value={1}>注册</Radio>

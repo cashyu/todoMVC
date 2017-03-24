@@ -21,13 +21,18 @@ const Login = Form.create()(
       return (
         <Form onSubmit={this.handleSubmit} className="login-form"> 
           <FormItem>
+            {getFieldDecorator('userName', {
+              rules: [{required: true, message: 'Please input your username!'}] ,                               
+            })(
+              <Input addonBefore={<Icon type="user" />}  placeholder="Username" />
+            )}
+          </FormItem>
+          <FormItem>
             {
               getFieldDecorator('password', {
-                rules: [{
-                  required: true, message: 'Please input your Password!'
-                }]
+                rules: [{required: true, message: 'Please input your Password!'}]
               })(
-                <Input addonBeffore={<Icon type="lock" />} type="password" placeholder="Password" />  
+                <Input addonBefore={<Icon type="lock" />} type="password" placeholder="Password" />  
               ) 
             }
           </FormItem>

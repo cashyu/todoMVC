@@ -3,6 +3,10 @@ import React from 'react'
 import TodoItem from './TodoItem'
 
 class TodoMain extends React.Component {
+  componentDidUpdate() {
+    this.props.saveOrUpdateTodos();
+  }
+
   render() {
     if(this.props.todos.length == 0) {
       return (
